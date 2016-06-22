@@ -53,9 +53,10 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "pose_nav");
   ros::NodeHandle n; 
   ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/RosAria/pose", 1, poseCallback);
-  ros::Publisher pub = n.advertise<geometry_msgs::Twist>("/trial", 100);
+  ros::Publisher pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel", 100);
   ros::Rate rate(5);
   ros::spinOnce();
+
 
 
 /*
@@ -90,25 +91,41 @@ while (ros::ok()){
 	geometry_msgs::Twist msg;
 
 	while (ros::ok()) {
-		
-
-		rate.sleep();
-	
-		/*msg.linear.x = (xtarg - xcur);
+		msg.linear.x = 0.1;
 	  	msg.linear.y = 0;
 	  	msg.linear.z = 0;
 	  	msg.angular.x = 0;
 	  	msg.angular.y = 0;
 	  	msg.angular.z = 0;
 	  	pub.publish(msg);
-		*/
-		//ros::Duration(1).sleep();
-		//ROS_INFO("x2 = %f, y2 = %f, theta2 = %f", xcur, ycur, thetacur);
-
-		ros::spinOnce();
 	
+		rate.sleep();
+	
+		ros::spinOnce();
+
+	if (xcur >= 1) {
+		msg.linear.x = 0;
+  		msg.linear.y = 0;
+  		msg.linear.z = 0;
+  		msg.angular.x = 0;
+ 	 	msg.angular.y = 0;
+ 	 	msg.angular.z = 0;
+
+ 	 	pub.publish(msg);
+
+		rate.sleep();
+
+		break;
 	}
 
+	}
 
+	/*msg.linear.x = 0;
+  	msg.linear.y = 0;
+  	msg.linear.z = 0;
+  	msg.angular.x = 0;
+  	msg.angular.y = 0;
+  	msg.angular.z = 0;
+  	pub.publish(msg);*/
 
 }
