@@ -14,21 +14,37 @@ double xcur = 0;
 double ycur = 0;
 double thetacur = 0;
 
+double xcurinit= 0;
+double ycurinit = 0;
+double thetacurinit = 0;
 
 double accuracy = 0.05;
 double dx = 0;
 
+double distancetraveled = 0.5;
 
-
-
+int i=0;
 
 void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) { 
+	if (i==0){
+	  xcurinit = msg->pose.pose.position.x;
+	  ycurinit = msg->pose.pose.position.y;
+	  thetacurinit = msg->pose.pose.orientation.z;
+	  ROS_INFO("Init values recieved: x = %f, y = %f, theta = %f", xcurinit, ycurinit, thetacurinit);
+	  i++;
+		}
+	else {
+	  xcur = msg->pose.pose.position.x;
+	  ycur = msg->pose.pose.position.y;
+	  thetacur = msg->pose.pose.orientation.z;
 
-  xcur = msg->pose.pose.position.x;
-  ycur = msg->pose.pose.position.y;
-  thetacur = msg->pose.pose.orientation.z;
-  ROS_INFO("x = %f, y = %f, theta = %f", xcur, ycur, thetacur);
+	  xcur -= xcurinit;
+	  ycur -= ycurinit;
+	  thetacur -= thetacurinit;
 
+	  ROS_INFO("x = %f, y = %f, theta = %f", xcur, ycur, thetacur);
+	}
+	
 }
 
 
@@ -38,7 +54,8 @@ int main(int argc, char** argv) {
   ros::NodeHandle n; 
   ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/RosAria/pose", 1, poseCallback);
   ros::Publisher pub = n.advertise<geometry_msgs::Twist>("/trial", 100);
-  ros::Rate rate(1);
+  ros::Rate rate(5);
+  ros::spinOnce();
 
 
 /*
@@ -86,7 +103,7 @@ while (ros::ok()){
 	  	pub.publish(msg);
 		*/
 		//ros::Duration(1).sleep();
-		ROS_INFO("x2 = %f, y2 = %f, theta2 = %f", xcur, ycur, thetacur);
+		//ROS_INFO("x2 = %f, y2 = %f, theta2 = %f", xcur, ycur, thetacur);
 
 		ros::spinOnce();
 	
