@@ -24,9 +24,9 @@ double dx = 0;
 
 void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) { 
 
-  double xcur = msg->pose.pose.position.x;
-  double ycur = msg->pose.pose.position.y;
-  double thetacur = msg->pose.pose.orientation.z;
+  xcur = msg->pose.pose.position.x;
+  ycur = msg->pose.pose.position.y;
+  thetacur = msg->pose.pose.orientation.z;
   ROS_INFO("x = %f, y = %f, theta = %f", xcur, ycur, thetacur);
 
 }
@@ -36,9 +36,9 @@ int main(int argc, char** argv) {
 
   ros::init(argc, argv, "pose_nav");
   ros::NodeHandle n; 
-  ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/RosAria/pose", 10, poseCallback);
+  ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/RosAria/pose", 1, poseCallback);
   ros::Publisher pub = n.advertise<geometry_msgs::Twist>("/trial", 100);
-  ros::Rate rate(4);
+  ros::Rate rate(1);
 
 
 /*
@@ -72,22 +72,26 @@ while (ros::ok()){
 	
 	geometry_msgs::Twist msg;
 
-	rate.sleep();	
-	msg.linear.x = (xtarg - xcur);
-  	msg.linear.y = 0;
-  	msg.linear.z = 0;
-  	msg.angular.x = 0;
-  	msg.angular.y = 0;
-  	msg.angular.z = 0;
-  	pub.publish(msg);
-	ros::Duration(1).sleep();
-	ROS_INFO("x2 = %f, y2 = %f, theta2 = %f", xcur, ycur, thetacur);
+	while (ros::ok()) {
+		
 
-	ros::spin();
+		rate.sleep();
 	
+		/*msg.linear.x = (xtarg - xcur);
+	  	msg.linear.y = 0;
+	  	msg.linear.z = 0;
+	  	msg.angular.x = 0;
+	  	msg.angular.y = 0;
+	  	msg.angular.z = 0;
+	  	pub.publish(msg);
+		*/
+		//ros::Duration(1).sleep();
+		ROS_INFO("x2 = %f, y2 = %f, theta2 = %f", xcur, ycur, thetacur);
 
-  //ros::spinOnce();
+		ros::spinOnce();
+	
+	}
 
-//}
+
 
 }
