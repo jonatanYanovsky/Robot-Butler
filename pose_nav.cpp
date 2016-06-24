@@ -4,7 +4,6 @@
 
 
 // Initialize a callback to get velocity values:
-//
 
 double xtarg = 0.2;
 double ytarg = 0;
@@ -21,9 +20,13 @@ double thetacurinit = 0;
 double accuracy = 0.05;
 double dx = 0;
 
+double velocity;
+
 double distancetraveled = 0.5;
 
 int i=0;
+
+float getBrakingDistance();
 
 void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) { 
 	if (i==0){
@@ -50,48 +53,21 @@ void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) {
 
 int main(int argc, char** argv) {
 
-  ros::init(argc, argv, "pose_nav");
-  ros::NodeHandle n; 
-  ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/RosAria/pose", 1, poseCallback);
-  ros::Publisher pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel", 100);
-  ros::Rate rate(5);
-  ros::spinOnce();
+	ros::init(argc, argv, "pose_nav");
+	ros::NodeHandle n; 
+	ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/RosAria/pose", 1, poseCallback);
+	ros::Publisher pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel", 100);
+	ros::Rate rate(10);
+	ros::spinOnce();
 
 
 
-/*
-     dx = sqrt((xtarg - xcur)*(xtarg - xcur));
-  
-while (ros::ok()){
 
-	if (dx/accuracy <= 1)
-
-	{ 
-
-	geometry_msgs::Twist msg;
-
-	rate.sleep();	
-	msg.linear.x = 0;
-  	msg.linear.y = 0;
-  	msg.linear.z = 0;
-  	msg.angular.x = 0;
-  	msg.angular.y = 0;
-  	msg.angular.z = 0;
-  	pub.publish(msg);
-	ros::Duration(1).sleep();
-
-  	ROS_INFO("x1 = %f, y1 = %f, theta1 = %f", xcur, ycur, thetacur);
-
-	}
-
-	else 
-	*/
-	//{ 
-	
+	int j = 0;
 	geometry_msgs::Twist msg;
 
 	while (ros::ok()) {
-		msg.linear.x = 0.1;
+		msg.linear.x = 1;
 	  	msg.linear.y = 0;
 	  	msg.linear.z = 0;
 	  	msg.angular.x = 0;
@@ -103,29 +79,42 @@ while (ros::ok()){
 	
 		ros::spinOnce();
 
-	if (xcur >= 1) {
-		msg.linear.x = 0;
-  		msg.linear.y = 0;
-  		msg.linear.z = 0;
-  		msg.angular.x = 0;
- 	 	msg.angular.y = 0;
- 	 	msg.angular.z = 0;
+		if (xcur >= 1) {
 
- 	 	pub.publish(msg);
+			msg.linear.x = -1;
+	  		msg.linear.y = 0;
+	  		msg.linear.z = 0;
+	  		msg.angular.x = 0;
+	 	 	msg.angular.y = 0;
+	 	 	msg.angular.z = 0;
 
-		rate.sleep();
+	 	 	pub.publish(msg);
 
-		break;
+			rate.sleep();
+			
+			msg.linear.x = 0;
+	  		msg.linear.y = 0;
+	  		msg.linear.z = 0;
+	  		msg.angular.x = 0;
+	 	 	msg.angular.y = 0;
+	 	 	msg.angular.z = 0;
+
+	 	 	pub.publish(msg);
+
+			rate.sleep();
+			
+			break;
+		}
+
 	}
 
-	}
 
-	/*msg.linear.x = 0;
-  	msg.linear.y = 0;
-  	msg.linear.z = 0;
-  	msg.angular.x = 0;
-  	msg.angular.y = 0;
-  	msg.angular.z = 0;
-  	pub.publish(msg);*/
 
+}
+
+
+
+float getBrakingDistance() {
+	double dist;
+	return dist;
 }
