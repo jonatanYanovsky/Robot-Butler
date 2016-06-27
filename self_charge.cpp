@@ -63,10 +63,11 @@ int main(int argc, char** argv) {
 	  	msg.angular.y = 0;
 	  	msg.angular.z = 0;
 	  	pub.publish(msg);
-	
 		rate.sleep();
+		ros::spinOnce();
 		}
 		
+		while (thetacur <= 0.99){
 		msg.linear.x = 0; 
 	  	msg.linear.y = 0;
 	  	msg.linear.z = 0;
@@ -75,6 +76,8 @@ int main(int argc, char** argv) {
 	  	msg.angular.z = 1;	//spin 180 degrees
 	  	pub.publish(msg);
 		rate.sleep();
+		ros::spinOnce();
+		}
 		
 		while (xcur <= 0.50){
 		msg.linear.x = -0.1; // controls speed
@@ -85,7 +88,7 @@ int main(int argc, char** argv) {
 	  	msg.angular.z = 0;
 	  	pub.publish(msg);
 		rate.sleep();
-		
+		ros::spinOnce();
 		}
 		
 		msg.linear.x = 0; // controls speed
@@ -96,8 +99,6 @@ int main(int argc, char** argv) {
 	  	msg.angular.z = 0;
 	  	pub.publish(msg);
 		rate.sleep();
-		
-		ros::spinOnce();
 		break;
 		/* if (xcur >= 0.25) { // controls distance
 		//if (xcur >= 1 - getBrakingDistance()) { // controls distance
