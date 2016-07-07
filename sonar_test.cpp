@@ -23,8 +23,8 @@ double thetacurinit = 0;
 
 double xsonarVal = 0;
 double ysonarVal = 0;
-double xsonarVal4;
-double xsonarVal5;
+double xsonarVal4 = 0;
+double xsonarVal5 = 0;
 double distancePt;
 
 double velocity;
@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
 	sensor_msgs::PointCloud msg2;
 
 	while (ros::ok()){	
-	if (distancePt < 1000) { // sonar distance
+	if (xsonarVal4 > 1000 && xsonarVal5 > 1000) { // sonar distance
 		msg.linear.x = 0.1; // controls speed
 	  	msg.linear.y = 0;
 	  	msg.linear.z = 0;
@@ -152,7 +152,7 @@ void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) {
 }
 
 void sonarCallback(const sensor_msgs::PointCloud::ConstPtr& msg2) { 
-	for (int k=4; k<6; k++){
+	for (int k=0; k<8; k++){
 		xsonarVal = msg2->points[k].x;
 		ysonarVal = msg2->points[k].y;
 		xsonarVal *= 1000;
@@ -165,10 +165,9 @@ void sonarCallback(const sensor_msgs::PointCloud::ConstPtr& msg2) {
 		
   	}
 	
-		/*xsonarVal4 = 1000*msg2->points[4].x;
+		xsonarVal4 = 1000*msg2->points[4].x;
 		xsonarVal5 = 1000*msg2->points[5].x;
 
-		ROS_INFO("Sonar Values: x4 = %f, x5 = %f", xsonarVal4, xsonarVal5);*/
 }
 
 double Distance(double x, double y){
