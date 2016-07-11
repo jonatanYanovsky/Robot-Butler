@@ -8,6 +8,7 @@
 
 
 // Initialize a callback to get velocity values:
+	int counter = 0;
 
 double xcur = 0;
 double ycur = 0;
@@ -23,8 +24,16 @@ double thetacurinit = 0;
 
 double xsonarVal = 0;
 double ysonarVal = 0;
+
+double xsonarVal0 = 0;
+double xsonarVal1 = 0;
+double xsonarVal2 = 0;
+double xsonarVal3 = 0;
 double xsonarVal4 = 0;
 double xsonarVal5 = 0;
+double xsonarVal6 = 0;
+double xsonarVal7 = 0;
+
 double distancePt;
 
 double velocity;
@@ -37,7 +46,6 @@ double Distance(double x, double y);
 void poseCallback(const nav_msgs::Odometry::ConstPtr& msg);
 
 void sonarCallback(const sensor_msgs::PointCloud::ConstPtr& msg2);
-
 
 int main(int argc, char** argv) {
 
@@ -57,23 +65,34 @@ int main(int argc, char** argv) {
 	sensor_msgs::PointCloud msg2;
 
 	while (ros::ok()){	
-	if (xsonarVal4 > 1000 && xsonarVal5 > 1000) { // sonar distance
-		msg.linear.x = 0.1; // controls speed
+	if (xsonarVal3 < 1000 || xsonarVal4 < 1000) { // sonar middle two sonar
+		
+
+
+
+
+		while (xsonarVal3 < 1000 || xsonarVal4 < 1000){ //we want it to turn 90 degrees, keep going, then turn back 		
+
+		//this while loop will turn our robot so that it is facing the obstacle sideways		
+		counter++;		
+
+		msg.linear.x = 0; // controls speed
 	  	msg.linear.y = 0;
 	  	msg.linear.z = 0;
 	  	msg.angular.x = 0;
 	  	msg.angular.y = 0;
-	  	msg.angular.z = 0;
+	  	msg.angular.z = 0.9;
 	  	pub.publish(msg);
 	
 		rate.sleep();
 	
 		ros::spinOnce();
-		
-	}
+		continue;
+		}
 
-	else {
-		msg.linear.x = 0;
+	while(xsonarVal0 <500 || xsonarVal7 <500)
+		{
+		msg.linear.x = 0.1;
 		msg.linear.y = 0;
 		msg.linear.z = 0;
 		msg.angular.x = 0;
@@ -84,14 +103,78 @@ int main(int argc, char** argv) {
 		rate.sleep();
 		
 		ros::spinOnce();
-			
+		continue;
+		}
+
+		for (int ii=0;ii<counter;ii++){
+		msg.linear.x = 0; // controls speed
+	  	msg.linear.y = 0;
+	  	msg.linear.z = 0;
+	  	msg.angular.x = 0;
+	  	msg.angular.y = 0;
+	  	msg.angular.z = -0.9;
+	  	pub.publish(msg);
+	
+		rate.sleep();
+	
+		ros::spinOnce();
+		}
+		
+		counter=0;
+		
+	}
+	
+	else if (xsonarVal1 < 1000){ 
+		while (xsonarVal1 < 1000){
+			msg.linear.x = 0.1; // controls speed
+		  	msg.linear.y = 0;
+		  	msg.linear.z = 0;
+		  	msg.angular.x = 0;
+		  	msg.angular.y = 0;
+		  	msg.angular.z = -0.65;
+		  	pub.publish(msg);
+	
+			rate.sleep();
+	
+			ros::spinOnce();
+		}
 	}
 
-
+	else if (xsonarVal6 < 1000){ //right center
+		while (xsonarVal6 < 1000){
+			msg.linear.x = 0.1; // controls speed
+		  	msg.linear.y = 0;
+		  	msg.linear.z = 0;
+		  	msg.angular.x = 0;
+		  	msg.angular.y = 0;
+		  	msg.angular.z = 0.65;
+		  	pub.publish(msg);
+	
+			rate.sleep();
+	
+			ros::spinOnce();
+		}	
 	}
+
+	else {
+
+		msg.linear.x = 0.1;
+		msg.linear.y = 0;
+		msg.linear.z = 0;
+		msg.angular.x = 0;
+	 	msg.angular.y = 0;
+	 	msg.angular.z = 0;
+ 	 	pub.publish(msg);
+
+		rate.sleep();
+		
+		ros::spinOnce();
+		
+
+		}
+	}
+
 }
-
-
 
 double getBrakingDistance() {
 	double dist;
@@ -155,19 +238,21 @@ void sonarCallback(const sensor_msgs::PointCloud::ConstPtr& msg2) {
 	for (int k=0; k<8; k++){
 		xsonarVal = msg2->points[k].x;
 		ysonarVal = msg2->points[k].y;
-		xsonarVal *= 1000;
+		xsonarVal *= 1000; //5000 = 5M
 		ysonarVal *= 1000;
 		distancePt = Distance(xsonarVal, ysonarVal);
 		ROS_INFO("Sonar Values: x = %f, y = %f, distance from point = %f", xsonarVal, ysonarVal, distancePt);	
 		
-
-		
-		
   	}
-	
+		xsonarVal0 = 1000*msg2->points[0].x;
+		xsonarVal1 = 1000*msg2->points[1].x;
+		xsonarVal2 = 1000*msg2->points[2].x;
+		xsonarVal3 = 1000*msg2->points[3].x;
 		xsonarVal4 = 1000*msg2->points[4].x;
 		xsonarVal5 = 1000*msg2->points[5].x;
-
+		xsonarVal6 = 1000*msg2->points[6].x;
+		xsonarVal7 = 1000*msg2->points[7].x;
+		
 }
 
 double Distance(double x, double y){
@@ -176,4 +261,5 @@ double Distance(double x, double y){
 	dis = pow(res,0.5);
 	return dis;
 }
+
 
