@@ -19,8 +19,6 @@ double thetacurinit = 0;
 double velocity;
 double distance; // used for velocity calculation
 
-double distancetraveled = 0.5;
-
 int x_target, y_target;
 double dest_theta;
 double dest_distance;
@@ -34,7 +32,7 @@ void poseCallback(const nav_msgs::Odometry::ConstPtr& msg);
 
 int main(int argc, char** argv) {
 
-	y_target = -1;
+	y_target = 1;
 	x_target = 1;
 
 	dest_theta = atan2(y_target, x_target); //explicitly for angle in quadrant 1
@@ -64,18 +62,17 @@ int main(int argc, char** argv) {
 
 	if (dest_theta < 0) { // then we go left
 		dest_theta *= -1; // make it positive (assume thetacur is 0)
-		while (dest_theta - thetacur >= 0.0) {
-			msg.linear.x = 0; 
+		while ((dest_theta - thetacur >= 0.0) && (xcur <= dest_distance)) {
+			msg.linear.x = 0.2; 
 	  		msg.linear.y = 0;
 	  		msg.linear.z = 0;
 	  		msg.angular.x = 0;
 	  		msg.angular.y = 0;
-			msg.angular.z = 0.3;	//spin until target theta
+			msg.angular.z = 0.2;	//spin until target theta
 			pub.publish(msg);
 			rate.sleep();
 			ros::spinOnce();
 		}
-		ROS_INFO("Outside While (IF) dest_theta = %f , Outside While thetacur = %f", dest_theta, thetacur);
 
 		msg.linear.x = 0; //stop
 	  	msg.linear.y = 0;
@@ -89,18 +86,18 @@ int main(int argc, char** argv) {
 
 	}
 	else {  //we go right
-		while (dest_theta + thetacur >= 0.0) {
-			msg.linear.x = 0; 
+		while ((dest_theta + thetacur >= 0.0) && (xcur <= dest_distance)) {
+			msg.linear.x = 0.2; 
 	  		msg.linear.y = 0;
 	  		msg.linear.z = 0;
 	  		msg.angular.x = 0;
 	  		msg.angular.y = 0;
-			msg.angular.z = -0.3;	//spin until target theta
+			msg.angular.z = -0.2;	//spin until target theta
 			pub.publish(msg);
 			rate.sleep();
 			ros::spinOnce();
 		}
-		ROS_INFO("Outside While (ELSE) dest_theta = %f , Outside While thetacur = %f", dest_theta, thetacur);
+		
 		msg.linear.x = 0; //stop
 	  	msg.linear.y = 0;
 	  	msg.linear.z = 0;
@@ -112,7 +109,7 @@ int main(int argc, char** argv) {
 	  	ros::spinOnce();
 	}
 
-	while(dest_distance - sqrt(pow(xcur, 2) + pow(ycur, 2)) - getBrakingDistance() >= 0.0){
+	/*while(dest_distance - sqrt(pow(xcur, 2) + pow(ycur, 2)) - getBrakingDistance() >= 0.0){
 		msg.linear.x = 0.5; //go forward for the calculated distance
 	  	msg.linear.y = 0;
 	  	msg.linear.z = 0;
@@ -132,61 +129,21 @@ int main(int argc, char** argv) {
 	msg.angular.z = 0;
 	pub.publish(msg);
 	rate.sleep();
-	ros::spinOnce();
+	ros::spinOnce();*/
 
-	return 0;
-
-	/*
-	while (ros::ok()) {
-		
-		msg.linear.x = 0.5; // controls speed
-	  	msg.linear.y = 0;
-	  	msg.linear.z = 0;
-	  	msg.angular.x = 0;
-	  	msg.angular.y = 0;
-	  	msg.angular.z = 0;
-	  	pub.publish(msg);
-	
-		rate.sleep();
-	
-		ros::spinOnce();
-
-		//if (xcur >= 1 - getBrakingDistance()){ // controls distance
-		
-			msg.linear.x = 0;
-	  		msg.linear.y = 0;
-	  		msg.linear.z = 0;
-	  		msg.angular.x = 0;
-	 	 	msg.angular.y = 0;
-	 	 	msg.angular.z = 0;
-
-	 	 	pub.publish(msg);
-
-			rate.sleep();
-			
-			break;
-		}
-
-	}
-
-*/
-
+return 0;
 }
 
 
 
 double getBrakingDistance() {
 	double dist;
-	//double arrayVelocity[10] = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1};
-	//double brakingDistance[10] = {0.04,0.12,0.24,0.35,0.53,0.70,0.99,1.12,1.13,1.14};
 	
 	if (velocity <= 0.75)
 		dist = 1.7463*velocity*velocity + 0.1283*velocity + 0.0212;
 	else
 		dist = 1.15;
-
 		//dist = 0.1257*velocity + 1.0133;
-
 
 	return dist;
 }
@@ -226,11 +183,10 @@ void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) {
 
 
 	  ROS_INFO("x = %f, y = %f, theta = %f, velocity = %f", xcur, ycur, thetacur, velocity);
-
-
+	  
 	}
 
 	i++;
 }
 
-
+//END OF CODE.
