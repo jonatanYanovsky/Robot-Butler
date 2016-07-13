@@ -68,7 +68,6 @@ int main(int argc, char** argv) {
 	}
 
 	else {
-		while (thetacur <= 0.50){
 		msg.linear.x = 0;
 		msg.linear.y = 0;
 		msg.linear.z = 0;
@@ -78,7 +77,6 @@ int main(int argc, char** argv) {
  	 	pub.publish(msg);
 		rate.sleep();
 		ros::spinOnce();
-		}
 		j++;
 	}
 
