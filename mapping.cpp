@@ -7,7 +7,9 @@
 #include <cmath>
 
 
-// Initialize a callback to get velocity values:
+//Wrote this code to prevent extensive coding
+//This way, we can manipulate sonar to navigate cubicles
+//Drives slow to get accurate mapping
 
 double xcur = 0;
 double ycur = 0;
@@ -48,13 +50,9 @@ int main(int argc, char** argv) {
 	ros::Rate rate(10); // times per second to check our position
 	ros::spinOnce();
 
-
-
-	
-	int j = 0;
 	geometry_msgs::Twist msg;
 	sensor_msgs::PointCloud msg2;
-
+	int j = 0;
 	while (j < 4){	
 	if (xsonarVal3 > 600 && xsonarVal4 > 600) { // sonar distance
 		msg.linear.x = 0.1; // controls speed
