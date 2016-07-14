@@ -119,6 +119,8 @@ double getBrakingDistance() {
 }
 
 
+//  to init poseCallback, set i = 0; in code and call spinOnce();
+double distanceFromLastInit; // used to see how far you have gone from the point at which "i" was set to 0
 void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) { 
 	if (i == 0){
 	  xcurinit = msg->pose.pose.position.x;
@@ -140,6 +142,9 @@ void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) {
 	  ycur = msg->pose.pose.position.y;
 	  thetacur = msg->pose.pose.orientation.z; // find the new position
 
+	  // find the distance since last init
+	  distanceFromLastInit = sqrt(pow(xcur - xcurinit , 2) + pow(ycur - ycurinit , 2)); // distance formula
+
 	  xcur -= xcurinit; 
 	  ycur -= ycurinit;
 	  thetacur -= thetacurinit; // apply (0,0,0) correction
@@ -151,7 +156,6 @@ void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) {
 	  velocity = (double)distance * 10;
 
 
-
 	  ROS_INFO("Odometer Values: x = %f, y = %f, theta = %f, velocity = %f", xcur, ycur, thetacur, velocity);
 
 
@@ -160,12 +164,18 @@ void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) {
 	i++;
 }
 
+// gets the distance that the sonar detected something at, not just (x,y) coordinates
+double sonarDistanceValues[8]; // sensors 0 to 7
 void sonarCallback(const sensor_msgs::PointCloud::ConstPtr& msg2) { 
 	for (int k=0; k<8; k++){
 		xsonarVal = msg2->points[k].x;
 		ysonarVal = msg2->points[k].y;
 		xsonarVal *= 1000;
 		ysonarVal *= 1000;
+		
+		// set distance of all sonar values
+		sonarDistanceValues[k] = sqrt(pow(xsonarVal , 2) + pow(ysonarVal , 2)); // pythagorean theorem
+		
 		ROS_INFO("Sonar Values: x = %f, y = %f", xsonarVal, ysonarVal);	
 		
   	}
