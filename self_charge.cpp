@@ -28,6 +28,8 @@ double xsonarVal4 = 0;
 double velocity;
 double distance; // used for velocity calculation
 
+double xHold = 0;
+
 int i=0;
 
 double getBrakingDistance();
@@ -48,8 +50,8 @@ int main(int argc, char** argv) {
 	geometry_msgs::Twist msg;
 	sensor_msgs::PointCloud msg2;
 	while (ros::ok()){
-		if ((xsonarVal3 == 0) || (xsonarVal4 == 0) || (xsonarVal3 > 1000 && xsonarVal4 > 1000)){
-				msg.linear.x = 0.3; // continue
+		if ((xsonarVal3 == 0) || (xsonarVal4 == 0) || (xsonarVal3 > 800 && xsonarVal4 > 800)){
+				msg.linear.x = 0.2; // continue
 				msg.linear.y = 0;
 				msg.linear.z = 0;
 				msg.angular.x = 0;
@@ -60,7 +62,7 @@ int main(int argc, char** argv) {
 				ros::spinOnce();	
 		}
 
-		else if ((xsonarVal3 < 1000) && (xsonarVal4 < 1000)){
+		else {
 			while (thetacur <= 0.98){
 				msg.linear.x = 0; 
 				msg.linear.y = 0;
@@ -71,8 +73,9 @@ int main(int argc, char** argv) {
 				pub.publish(msg);
 				rate.sleep();
 				ros::spinOnce();
+				xHold = xcur;
 			}
-			while (xcur <= 0.70){
+			while (xcur <= xHold + 0.7) {
 				msg.linear.x = -0.1; // reverse
 				msg.linear.y = 0;
 				msg.linear.z = 0;
@@ -83,6 +86,7 @@ int main(int argc, char** argv) {
 				rate.sleep();
 				ros::spinOnce();
 			}
+
 				msg.linear.x = 0; // stop
 				msg.linear.y = 0;
 				msg.linear.z = 0;
@@ -93,11 +97,11 @@ int main(int argc, char** argv) {
 				rate.sleep();
 				ros::spinOnce();
 				break;
-		}
-	}
+		}//else end
+	}//while ros::ok end
 return 0;
 
-}
+}//end int main
 
 
 
