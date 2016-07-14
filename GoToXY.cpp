@@ -32,8 +32,8 @@ void poseCallback(const nav_msgs::Odometry::ConstPtr& msg);
 
 int main(int argc, char** argv) {
 
-	y_target = 1;
-	x_target = 1;
+	y_target = 0;
+	x_target = -1;
 
 	dest_theta = atan2(y_target, x_target); //explicitly for angle in quadrant 1
 	dest_theta /= 3.14159; //to make it go from -1 to 1
@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 
 	ROS_INFO("Init dest_theta = %f, dest_distance = %f", dest_theta, dest_distance);
 
-	ros::init(argc, argv, "pose_nav");
+	ros::init(argc, argv, "master");
 	ros::NodeHandle n; 
 	ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/RosAria/pose", 1, poseCallback);
 	ros::Publisher pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel", 100);
@@ -62,13 +62,13 @@ int main(int argc, char** argv) {
 
 	if (dest_theta < 0) { // then we go left
 		dest_theta *= -1; // make it positive (assume thetacur is 0)
-		while ((dest_theta - thetacur >= 0.0) && (xcur <= dest_distance)) {
-			msg.linear.x = 0.2; 
+		while (dest_theta - thetacur >= 0.0) {
+			msg.linear.x = 0; 
 	  		msg.linear.y = 0;
 	  		msg.linear.z = 0;
 	  		msg.angular.x = 0;
 	  		msg.angular.y = 0;
-			msg.angular.z = 0.2;	//spin until target theta
+			msg.angular.z = 0.5;	//spin until target theta
 			pub.publish(msg);
 			rate.sleep();
 			ros::spinOnce();
@@ -86,13 +86,13 @@ int main(int argc, char** argv) {
 
 	}
 	else {  //we go right
-		while ((dest_theta + thetacur >= 0.0) && (xcur <= dest_distance)) {
-			msg.linear.x = 0.2; 
+		while (dest_theta + thetacur >= 0.0) {
+			msg.linear.x = 0; 
 	  		msg.linear.y = 0;
 	  		msg.linear.z = 0;
 	  		msg.angular.x = 0;
 	  		msg.angular.y = 0;
-			msg.angular.z = -0.2;	//spin until target theta
+			msg.angular.z = -0.5;	//spin until target theta
 			pub.publish(msg);
 			rate.sleep();
 			ros::spinOnce();
@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
 	  	ros::spinOnce();
 	}
 
-	/*while(dest_distance - sqrt(pow(xcur, 2) + pow(ycur, 2)) - getBrakingDistance() >= 0.0){
+	while(dest_distance - sqrt(pow(xcur, 2) + pow(ycur, 2)) - getBrakingDistance() >= 0.0){
 		msg.linear.x = 0.5; //go forward for the calculated distance
 	  	msg.linear.y = 0;
 	  	msg.linear.z = 0;
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
 	msg.angular.z = 0;
 	pub.publish(msg);
 	rate.sleep();
-	ros::spinOnce();*/
+	ros::spinOnce();
 
 return 0;
 }
