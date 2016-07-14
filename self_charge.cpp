@@ -7,14 +7,6 @@
 #include <cmath> // for pow()
 
 
-// NOTES: must turn robot on/off every time we do [rosrun pose_nav pose_nav]
-
-// BUG: cannot reset local position perfectly. If we turn 180 degrees, then the robot still remembers which direction it started from.
-// this means that if we tell it to move backward (negative direction), it lists its x-position as positive
-
-// Initialize a callback to get velocity values:
-
-
 //Variables
 double xcur = 0;
 double ycur = 0;
@@ -39,13 +31,12 @@ double distance; // used for velocity calculation
 int i=0;
 
 double getBrakingDistance();
-double Distance(double x, double y);
 void poseCallback(const nav_msgs::Odometry::ConstPtr& msg);
 void sonarCallback(const sensor_msgs::PointCloud::ConstPtr& msg2);
 
 int main(int argc, char** argv) {
 
-	ros::init(argc, argv, "sonar_test");
+	ros::init(argc, argv, "master");
 	ros::NodeHandle n; 
 	ros::Subscriber sub = n.subscribe<nav_msgs::Odometry>("/RosAria/pose", 1, poseCallback);
 	ros::Subscriber sub2 = n.subscribe<sensor_msgs::PointCloud>("/RosAria/sonar", 1, sonarCallback);
@@ -57,7 +48,19 @@ int main(int argc, char** argv) {
 	geometry_msgs::Twist msg;
 	sensor_msgs::PointCloud msg2;
 	while (ros::ok()){
-		if ((xsonarVal3 < 1000) && (xsonarVal4 < 1000)){
+		if ((xsonarVal3 == 0) || (xsonarVal4 == 0) || (xsonarVal3 > 1000 && xsonarVal4 > 1000)){
+				msg.linear.x = 0.3; // continue
+				msg.linear.y = 0;
+				msg.linear.z = 0;
+				msg.angular.x = 0;
+				msg.angular.y = 0;
+				msg.angular.z = 0;
+				pub.publish(msg);
+				rate.sleep();
+				ros::spinOnce();	
+		}
+
+		else if ((xsonarVal3 < 1000) && (xsonarVal4 < 1000)){
 			while (thetacur <= 0.98){
 				msg.linear.x = 0; 
 				msg.linear.y = 0;
@@ -89,17 +92,7 @@ int main(int argc, char** argv) {
 				pub.publish(msg);
 				rate.sleep();
 				ros::spinOnce();
-		}
-		else{
-				msg.linear.x = 0.1; // continue
-				msg.linear.y = 0;
-				msg.linear.z = 0;
-				msg.angular.x = 0;
-				msg.angular.y = 0;
-				msg.angular.z = 0;
-				pub.publish(msg);
-				rate.sleep();
-				ros::spinOnce();
+				break;
 		}
 	}
 return 0;
@@ -169,19 +162,11 @@ void sonarCallback(const sensor_msgs::PointCloud::ConstPtr& msg2) {
 		ysonarVal = msg2->points[k].y;
 		xsonarVal *= 1000;
 		ysonarVal *= 1000;
-		distancePt = Distance(xsonarVal, ysonarVal);
-		ROS_INFO("Sonar Values: x = %f, y = %f, distance from point = %f", xsonarVal, ysonarVal, distancePt);	
+		ROS_INFO("Sonar Values: x = %f, y = %f", xsonarVal, ysonarVal);	
 		
   	}
 	
 		xsonarVal3 = 1000*msg2->points[3].x;
 		xsonarVal4 = 1000*msg2->points[4].x;
 
-}
-
-double Distance(double x, double y){
-	double dis, res;
-	res = pow(x,2) + pow(y,2);
-	dis = pow(res,0.5);
-	return dis;
 }
