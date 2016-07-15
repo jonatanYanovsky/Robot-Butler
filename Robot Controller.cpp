@@ -107,10 +107,10 @@ void backUpIntoChargingStation() {
 	// note: don't need while(ros::ok()) since our code is linear.
 
 	while ((sonarDistanceValues[3] > 800) && (sonarDistanceValues[4] > 800)) {
-		msg.linear.x = 0.2; // go straight
+		msg.linear.x = 0.2; 
 		msg.linear.y = 0;
 		msg.linear.z = 0;
-		msg.angular.x = 0;
+		msg.angular.x = 0; // go straight
 		msg.angular.y = 0;
 		msg.angular.z = 0;
 		pub.publish(msg);
@@ -118,58 +118,50 @@ void backUpIntoChargingStation() {
 		ros::spinOnce();
 	}
 
-	else {
-		while (thetacur <= 0.98) { // rotate 180 degrees
-			msg.linear.x = 0;
-			msg.linear.y = 0;
-			msg.linear.z = 0;
-			msg.angular.x = 0;
-			msg.angular.y = 0;
-			msg.angular.z = 1;
-			pub.publish(msg);
-			rate.sleep();
-			ros::spinOnce();
-		}
-		while ((sonarDistanceValues[0] > 800) && (sonarDistanceValues[7] > 800)) {
-			msg.linear.x = -0.1; // reverse into charging station
-			msg.linear.y = 0;
-			msg.linear.z = 0;
-			msg.angular.x = 0;
-			msg.angular.y = 0;
-			msg.angular.z = 0;
-			pub.publish(msg);
-			rate.sleep();
-			ros::spinOnce();
-		}
-
-		msg.linear.x = 0; // stop
+	while (thetacur <= 0.98) { 
+		msg.linear.x = 0;
 		msg.linear.y = 0;
 		msg.linear.z = 0;
-		msg.angular.x = 0;
+		msg.angular.x = 0; // rotate 180 degrees
+		msg.angular.y = 0;
+		msg.angular.z = 1;
+		pub.publish(msg);
+		rate.sleep();
+		ros::spinOnce();
+	}
+
+	while ((sonarDistanceValues[0] > 800) && (sonarDistanceValues[7] > 800)) {
+		msg.linear.x = -0.1; 
+		msg.linear.y = 0;
+		msg.linear.z = 0;
+		msg.angular.x = 0; // reverse into charging station
 		msg.angular.y = 0;
 		msg.angular.z = 0;
 		pub.publish(msg);
 		rate.sleep();
 		ros::spinOnce();
+	}
 
-			
-
-	}//else end
+	msg.linear.x = 0; 
+	msg.linear.y = 0;
+	msg.linear.z = 0;
+	msg.angular.x = 0; // stop
+	msg.angular.y = 0;
+	msg.angular.z = 0;
+	pub.publish(msg);
+	rate.sleep();
+	ros::spinOnce();
 
 }
 
 
 double getBrakingDistance() {
-	double dist;
 		
 	if (velocity <= 0.75)
-		dist = 1.7463*velocity*velocity + 0.1283*velocity + 0.0212;
-	else
-		dist = 1.15;
-		//dist = 0.1257*velocity + 1.0133;
+		return 1.7463*velocity*velocity + 0.1283*velocity + 0.0212;
 
+	return 1.15;
 
-	return dist;
 }
 
 
@@ -209,14 +201,13 @@ void poseCallback(const nav_msgs::Odometry::ConstPtr& msg) {
 
 	  velocity = (double)distance * 10;
 
-
 	  ROS_INFO("Odometer Values: x = %f, y = %f, theta = %f, velocity = %f", xcur, ycur, thetacur, velocity);
-
 
 	}
 
 	i++;
 }
+
 
 // gets the distance that the sonar detected something at, not just (x,y) coordinates
 double sonarDistanceValues[8]; // sensors 0 to 7
