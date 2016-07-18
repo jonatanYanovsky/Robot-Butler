@@ -1,3 +1,5 @@
+#!/bin/bash
+
 select cck in "coffee" "charge" "kill"; do
     echo " "
     echo "Enter a command (coffee) or (charge) or (kill): "
